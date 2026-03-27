@@ -191,8 +191,7 @@ h3{font-size:15px;font-weight:600;margin-bottom:8px}
       <span class="spark-label" style="color:var(--purple)">Средняя энергия (общая)</span>
       <span class="spark-minmax">min 2.0 · max 3.0</span>
     </div>
-    <canvas id="avgChart" height="70"></canvas>
-    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-top:4px;padding:0 4px" id="avgLabels"></div>
+    <div id="avgChartWrap"></div>
   </div>
 </div>
 
@@ -319,145 +318,243 @@ const spheres = [
   { key:"love", label:"Любовь", color:"#D4537E", vals:W.map(w=>w.love) },
 ];
 
-// Sparklines
+const NS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs) {
+  const el = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs || {})) el.setAttribute(k, v);
+  return el;
+}
+
+// ── Sparklines ──
 const sg = document.getElementById("sparkGrid");
 spheres.forEach(s => {
-  const min = Math.min(...s.vals), max = Math.max(...s.vals), last = s.vals[s.vals.length-1];
+  const min = Math.min(...s.vals), max = Math.max(...s.vals), last = s.vals[s.vals.length - 1];
+  const isFlat = min === max;
   const card = document.createElement("div");
   card.className = "spark-card";
-  card.innerHTML = `<div class="spark-header"><span class="spark-label" style="color:${s.color}">${s.label}</span><div><span class="spark-minmax">min ${min} · max ${max}&nbsp;&nbsp;</span><span class="spark-val" style="color:${s.color}">${last}/5</span></div></div>`;
-  const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
-  svg.setAttribute("viewBox","0 0 150 48");svg.setAttribute("width","100%");svg.style.display="block";svg.style.overflow="visible";
-  const range = max-min||1, pad=6, ph=36;
-  const pts=s.vals.map((v,i)=>({x:(i/(s.vals.length-1))*150, y:pad+ph-((v-min)/range)*ph, v}));
-  const poly=document.createElementNS("http://www.w3.org/2000/svg","polyline");
-  poly.setAttribute("points",pts.map(p=>`${p.x},${p.y}`).join(" "));
-  poly.setAttribute("fill","none");poly.setAttribute("stroke",s.color);poly.setAttribute("stroke-width","2");poly.setAttribute("stroke-linecap","round");poly.setAttribute("stroke-linejoin","round");
+
+  const headerText = isFlat
+    ? `стабильно ${min}`
+    : `min ${min} · max ${max}`;
+  card.innerHTML = `<div class="spark-header"><span class="spark-label" style="color:${s.color}">${s.label}</span><div><span class="spark-minmax">${headerText}&nbsp;&nbsp;</span><span class="spark-val" style="color:${s.color}">${last}/5</span></div></div>`;
+
+  // SVG dimensions — taller to fit labels
+  const svgW = 280, topPad = 20, botPad = 20, plotH = 40;
+  const svgH = topPad + plotH + botPad;
+  const svg = svgEl("svg", { viewBox: `0 0 ${svgW} ${svgH}`, width: "100%", style: "display:block;overflow:visible" });
+
+  const range = max - min || 1;
+  const pts = s.vals.map((v, i) => ({
+    x: 10 + (i / (s.vals.length - 1)) * (svgW - 20),
+    y: topPad + plotH - ((v - min) / range) * plotH,
+    v,
+  }));
+
+  // line
+  const poly = svgEl("polyline", {
+    points: pts.map(p => `${p.x},${p.y}`).join(" "),
+    fill: "none", stroke: s.color, "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round"
+  });
   svg.appendChild(poly);
-  pts.forEach(p=>{const c=document.createElementNS("http://www.w3.org/2000/svg","circle");c.setAttribute("cx",p.x);c.setAttribute("cy",p.y);c.setAttribute("r","3");c.setAttribute("fill",s.color);svg.appendChild(c)});
-  if(min!==max){
-    const mx=pts.reduce((a,b)=>a.v>=b.v?a:b), mn=pts.reduce((a,b)=>a.v<=b.v?a:b);
-    [mx,mn].forEach((p,idx)=>{
-      const ring=document.createElementNS("http://www.w3.org/2000/svg","circle");ring.setAttribute("cx",p.x);ring.setAttribute("cy",p.y);ring.setAttribute("r","6");ring.setAttribute("fill",s.color);ring.setAttribute("opacity","0.15");svg.appendChild(ring);
-      const t=document.createElementNS("http://www.w3.org/2000/svg","text");t.setAttribute("x",p.x);t.setAttribute("y",idx===0?p.y-10:p.y+16);t.setAttribute("text-anchor","middle");t.style.cssText=`font-size:9px;font-weight:600;fill:${s.color};font-family:var(--font-sans,'DM Sans',system-ui)`;t.textContent=(idx===0?"MAX ":"MIN ")+p.v;svg.appendChild(t);
+
+  // dots
+  pts.forEach(p => svg.appendChild(svgEl("circle", { cx: p.x, cy: p.y, r: "3", fill: s.color })));
+
+  if (!isFlat) {
+    // find first max and last min (for visual clarity)
+    const maxPt = pts.reduce((a, b) => a.v >= b.v ? a : b);
+    const minPt = pts.reduce((a, b) => a.v <= b.v ? a : b);
+
+    // MAX label — always above the point
+    svg.appendChild(svgEl("circle", { cx: maxPt.x, cy: maxPt.y, r: "6", fill: s.color, opacity: "0.15" }));
+    const maxLabel = svgEl("text", {
+      x: maxPt.x, y: maxPt.y - 10, "text-anchor": "middle",
+      style: `font-size:10px;font-weight:600;fill:${s.color};font-family:'DM Sans',system-ui`
     });
+    maxLabel.textContent = `MAX ${maxPt.v}`;
+    svg.appendChild(maxLabel);
+
+    // MIN label — always below the point
+    svg.appendChild(svgEl("circle", { cx: minPt.x, cy: minPt.y, r: "6", fill: s.color, opacity: "0.15" }));
+    const minLabel = svgEl("text", {
+      x: minPt.x, y: minPt.y + 16, "text-anchor": "middle",
+      style: `font-size:10px;font-weight:600;fill:${s.color};font-family:'DM Sans',system-ui`
+    });
+    minLabel.textContent = `MIN ${minPt.v}`;
+    svg.appendChild(minLabel);
   }
+
   card.appendChild(svg);
-  const lb=document.createElement("div");lb.style.cssText="display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-top:4px";lb.innerHTML="<span>янв</span><span>мар</span>";card.appendChild(lb);
+
+  // x-axis labels
+  const lb = document.createElement("div");
+  lb.style.cssText = "display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-top:2px";
+  lb.innerHTML = "<span>янв</span><span>мар</span>";
+  card.appendChild(lb);
+
   sg.appendChild(card);
 });
 
-// Avg bar chart
-const ac=document.getElementById("avgChart"), ctx=ac.getContext("2d");
-const avgs=W.map(w=>w.avg), aMin=Math.min(...avgs), aMax=Math.max(...avgs);
-function drawAvg(){
-  const dpr=window.devicePixelRatio||1, rect=ac.getBoundingClientRect();
-  ac.width=rect.width*dpr;ac.height=70*dpr;ctx.scale(dpr,dpr);
-  const cw=rect.width, ch=70, bw=cw/avgs.length, pad=6;
-  const maxI=avgs.indexOf(aMax), minI=avgs.lastIndexOf(aMin);
-  avgs.forEach((v,i)=>{
-    const bh=(v/5)*(ch-20);
-    ctx.fillStyle=i===maxI?"#534AB7":i===minI?"rgba(83,74,183,0.45)":"rgba(83,74,183,0.65)";
-    ctx.beginPath();
-    const x=i*bw+pad, y=ch-bh, w=bw-pad*2, r=4;
-    ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,ch);ctx.lineTo(x,ch);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.fill();
-    ctx.fillStyle="var(--t1)";ctx.font=`${i===maxI||i===minI?"600":"400"} 11px 'DM Sans',system-ui`;ctx.textAlign="center";
-    ctx.fillStyle=i===maxI?"#534AB7":i===minI?"rgba(83,74,183,0.7)":"rgba(100,100,100,0.6)";
-    ctx.fillText(v, i*bw+bw/2, y-4);
-    if(i===maxI){ctx.font="600 9px 'DM Sans',system-ui";ctx.fillStyle="#534AB7";ctx.fillText("MAX",i*bw+bw/2,y-16)}
-    if(i===minI&&aMin!==aMax){ctx.font="600 9px 'DM Sans',system-ui";ctx.fillStyle="rgba(83,74,183,0.6)";ctx.fillText("MIN",i*bw+bw/2,ch+12)}
-  });
-}
-drawAvg();
-const al=document.getElementById("avgLabels");W.forEach(w=>{const s=document.createElement("span");s.textContent=w.label;al.appendChild(s)});
+// ── Average energy bar chart (SVG) ──
+const avgs = W.map(w => w.avg);
+const aMin = Math.min(...avgs), aMax = Math.max(...avgs);
+const maxI = avgs.indexOf(aMax), minI = avgs.lastIndexOf(aMin);
 
-// Calendar
-const ct=document.getElementById("calTimeline");
-const emoStyle=e=>{const l=e.toLowerCase();if(l.includes("грусть"))return{bg:"rgba(226,75,74,.12)",c:"#C0392B"};if(l.includes("раздражительность"))return{bg:"rgba(239,159,39,.12)",c:"#B87A0A"};if(l.includes("радость"))return{bg:"rgba(29,158,117,.12)",c:"#0F6E56"};if(l.includes("забота")||l.includes("тепло"))return{bg:"rgba(55,138,221,.12)",c:"#185FA5"};if(l.includes("сонливость"))return{bg:"rgba(127,119,221,.12)",c:"#534AB7"};return{bg:"var(--bg2)",c:"var(--t2)"}};
-W.forEach(w=>{
-  const d=document.createElement("div");d.className="cal-week";
-  const dotColor=w.avg<=2?"#E24B4A":w.avg<=3?"#EF9F27":"#1D9E75";
-  let pills=w.emotions.map(e=>{const s=emoStyle(e);return`<span class="pill" style="background:${s.bg};color:${s.c}">${e}</span>`}).join("");
-  let evs=w.events.map(e=>{const ok=e.includes("✓"),bad=e.includes("Обида")||e.includes("Потеря")||e.includes("профукал");return`<div class="cal-ev" style="color:${ok?"var(--green)":bad?"var(--red)":"var(--t2)"}"><span class="cal-dot" style="background:${ok?"var(--green)":bad?"var(--red)":"var(--t3)"}"></span>${e}</div>`}).join("");
-  let doneHtml=w.done.length?`<span class="pill" style="background:var(--green-l);color:var(--green-d)">✓ ${w.done.length}</span>`:"";
-  d.innerHTML=`<div class="cal-head"><div style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:${dotColor};display:inline-block"></span><span style="font-size:13px;font-weight:600">${w.label}</span><span style="font-size:12px;color:var(--t2)">${w.state}</span>${doneHtml}</div><span style="font-size:12px;font-weight:600;color:${dotColor}">${w.avg}/5</span></div><div style="display:flex;gap:4px;flex-wrap:wrap;margin:4px 0">${pills}</div><div class="cal-events">${evs}</div>`;
+const bSvgW = 560, bSvgH = 110, barTop = 22, barBot = 18;
+const barArea = bSvgH - barTop - barBot;
+const bw = bSvgW / avgs.length;
+
+const bSvg = svgEl("svg", { viewBox: `0 0 ${bSvgW} ${bSvgH}`, width: "100%", style: "display:block" });
+
+avgs.forEach((v, i) => {
+  const bh = (v / 5) * barArea;
+  const x = i * bw + 8;
+  const w = bw - 16;
+  const y = barTop + barArea - bh;
+  const isMax = i === maxI;
+  const isMin = i === minI && aMin !== aMax;
+
+  const rect = svgEl("rect", {
+    x, y, width: w, height: bh, rx: "4",
+    fill: "#534AB7",
+    opacity: isMax ? "1" : isMin ? "0.4" : "0.65"
+  });
+  bSvg.appendChild(rect);
+
+  // value above bar
+  const valText = svgEl("text", {
+    x: i * bw + bw / 2, y: y - 3, "text-anchor": "middle",
+    style: `font-size:12px;font-weight:${isMax || isMin ? 700 : 400};fill:${isMax ? "#534AB7" : isMin ? "#7F77DD" : "#888"};font-family:'DM Sans',system-ui`
+  });
+  valText.textContent = v;
+  bSvg.appendChild(valText);
+
+  // MAX/MIN tag
+  if (isMax) {
+    const tag = svgEl("text", {
+      x: i * bw + bw / 2, y: y - 15, "text-anchor": "middle",
+      style: "font-size:9px;font-weight:700;fill:#534AB7;font-family:'DM Sans',system-ui"
+    });
+    tag.textContent = "MAX";
+    bSvg.appendChild(tag);
+  }
+  if (isMin) {
+    const tag = svgEl("text", {
+      x: i * bw + bw / 2, y: barTop + barArea + 14, "text-anchor": "middle",
+      style: "font-size:9px;font-weight:700;fill:#7F77DD;font-family:'DM Sans',system-ui"
+    });
+    tag.textContent = "MIN";
+    bSvg.appendChild(tag);
+  }
+
+  // week label below bar
+  const label = svgEl("text", {
+    x: i * bw + bw / 2, y: bSvgH, "text-anchor": "middle",
+    style: "font-size:10px;fill:#8a8a85;font-family:'DM Sans',system-ui"
+  });
+  label.textContent = W[i].label;
+  bSvg.appendChild(label);
+});
+
+document.getElementById("avgChartWrap").appendChild(bSvg);
+
+// ── Calendar ──
+const ct = document.getElementById("calTimeline");
+const emoStyle = e => {
+  const l = e.toLowerCase();
+  if (l.includes("грусть")) return { bg: "rgba(226,75,74,.12)", c: "#C0392B" };
+  if (l.includes("раздражительность")) return { bg: "rgba(239,159,39,.12)", c: "#B87A0A" };
+  if (l.includes("радость")) return { bg: "rgba(29,158,117,.12)", c: "#0F6E56" };
+  if (l.includes("забота") || l.includes("тепло")) return { bg: "rgba(55,138,221,.12)", c: "#185FA5" };
+  if (l.includes("сонливость")) return { bg: "rgba(127,119,221,.12)", c: "#534AB7" };
+  return { bg: "var(--bg2)", c: "var(--t2)" };
+};
+W.forEach(w => {
+  const d = document.createElement("div"); d.className = "cal-week";
+  const dotColor = w.avg <= 2 ? "#E24B4A" : w.avg <= 3 ? "#EF9F27" : "#1D9E75";
+  let pills = w.emotions.map(e => { const s = emoStyle(e); return `<span class="pill" style="background:${s.bg};color:${s.c}">${e}</span>`; }).join("");
+  let evs = w.events.map(e => { const ok = e.includes("✓"), bad = e.includes("Обида") || e.includes("Потеря") || e.includes("профукал"); return `<div class="cal-ev" style="color:${ok ? "var(--green)" : bad ? "var(--red)" : "var(--t2)"}"><span class="cal-dot" style="background:${ok ? "var(--green)" : bad ? "var(--red)" : "var(--t3)"}"></span>${e}</div>`; }).join("");
+  let doneHtml = w.done.length ? `<span class="pill" style="background:var(--green-l);color:var(--green-d)">✓ ${w.done.length}</span>` : "";
+  d.innerHTML = `<div class="cal-head"><div style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:${dotColor};display:inline-block"></span><span style="font-size:13px;font-weight:600">${w.label}</span><span style="font-size:12px;color:var(--t2)">${w.state}</span>${doneHtml}</div><span style="font-size:12px;font-weight:600;color:${dotColor}">${w.avg}/5</span></div><div style="display:flex;gap:4px;flex-wrap:wrap;margin:4px 0">${pills}</div><div class="cal-events">${evs}</div>`;
   ct.appendChild(d);
 });
 
-// Emotion chips
-const emoFreq={};W.forEach(w=>w.emotions.forEach(e=>{if(e!=="—")emoFreq[e]=(emoFreq[e]||0)+1}));
-const ec=document.getElementById("emoChips");
-Object.entries(emoFreq).sort((a,b)=>b[1]-a[1]).forEach(([em,cnt])=>{
-  const s=emoStyle(em);
-  ec.innerHTML+=`<div class="emo-chip" style="background:${s.bg}"><span class="emo-name" style="color:${s.c}">${em}</span><span class="emo-count" style="color:${s.c}">${cnt}</span><span class="emo-unit" style="color:${s.c}">нед</span></div>`;
+// ── Emotion chips ──
+const emoFreq = {};
+W.forEach(w => w.emotions.forEach(e => { if (e !== "—") emoFreq[e] = (emoFreq[e] || 0) + 1; }));
+const ec = document.getElementById("emoChips");
+Object.entries(emoFreq).sort((a, b) => b[1] - a[1]).forEach(([em, cnt]) => {
+  const s = emoStyle(em);
+  ec.innerHTML += `<div class="emo-chip" style="background:${s.bg}"><span class="emo-name" style="color:${s.c}">${em}</span><span class="emo-count" style="color:${s.c}">${cnt}</span><span class="emo-unit" style="color:${s.c}">нед</span></div>`;
 });
 
-// Evolution chain
-const evoData=[{s:"Нейтрально",c:"#888"},{s:"Сонливость",c:"#534AB7"},{s:"Раздражит.",c:"#EF9F27"},{s:"Грусть",c:"#E24B4A"},{s:"«Не помню»",c:"#2C3E50"},{s:"Радость?",c:"#1D9E75"}];
-const ev=document.getElementById("evoChain");
-evoData.forEach((e,i)=>{
-  ev.innerHTML+=`<div class="evo-node" style="background:${e.c}12;border:1px solid ${e.c}25;color:${e.c}">${e.s}</div>`;
-  if(i<evoData.length-1)ev.innerHTML+=`<div class="evo-link" style="background:${evoData[i+1].c};opacity:.3"></div>`;
+// ── Evolution chain ──
+const evoData = [{ s: "Нейтрально", c: "#888" }, { s: "Сонливость", c: "#534AB7" }, { s: "Раздражит.", c: "#EF9F27" }, { s: "Грусть", c: "#E24B4A" }, { s: "«Не помню»", c: "#2C3E50" }, { s: "Радость?", c: "#1D9E75" }];
+const ev = document.getElementById("evoChain");
+evoData.forEach((e, i) => {
+  ev.innerHTML += `<div class="evo-node" style="background:${e.c}12;border:1px solid ${e.c}25;color:${e.c}">${e.s}</div>`;
+  if (i < evoData.length - 1) ev.innerHTML += `<div class="evo-link" style="background:${evoData[i + 1].c};opacity:.3"></div>`;
 });
 
-// Patterns
-const pats=[
-  {name:"Стагнация работы",icon:"◼",color:"#E24B4A",weeks:[1,1,1,1,1,1,1,1],desc:"Все 4 рабочие задачи без движения 8 недель. Тексты идентичны — механическое копирование.",insight:"Задачи как «надо бы», а не «хочу». Нет дедлайнов, нет декомпозиции. Но это значит, что достаточно поменять формат — и дело сдвинется."},
-  {name:"«Думаю, но не делаю»",icon:"◻",color:"#EF9F27",weeks:[0,0,0,1,1,1,1,1],desc:"Спорт, часы, зубной — цикл намерений без действия.",insight:"Intention-action gap. Хорошая новость: зубной на 8-й неделе — паттерн уже однажды сломан. Значит, можно снова."},
-  {name:"Забота о других > себя",icon:"●",color:"#378ADD",weeks:[1,1,1,1,1,1,1,1],desc:"Каспер, папа, управа — энергия на внешние запросы. Здоровье откладывается.",insight:"Это не слабость — это сила, направленная не туда. Перенаправить часть этой энергии на себя — вот задача."},
-  {name:"Эмоциональное затухание",icon:"◆",color:"#7F77DD",weeks:[0,0,0,1,1,1,1,0],desc:"Нейтрально → сонливость → раздражительность → грусть → «не помню».",insight:"Последняя неделя — радость вернулась. Затухание было, но оно не финальное. 1 слово-эмоция в день = путь назад к себе."},
-  {name:"Перфекционизм-блокиратор",icon:"▲",color:"#D4537E",weeks:[0,1,1,1,1,1,1,1],desc:"Планки «не уверен в цвете». Шкаф «с косяками».",insight:"Шкаф стоит — несмотря на косяки. Значит, ты умеешь преодолевать перфекционизм, когда задача для Кати. Осталось разрешить себе то же самое для себя."},
+// ── Patterns ──
+const pats = [
+  { name: "Стагнация работы", icon: "◼", color: "#E24B4A", weeks: [1, 1, 1, 1, 1, 1, 1, 1], desc: "Все 4 рабочие задачи без движения 8 недель. Тексты идентичны — механическое копирование.", insight: "Задачи как «надо бы», а не «хочу». Нет дедлайнов, нет декомпозиции. Но достаточно поменять формат — и дело сдвинется." },
+  { name: "«Думаю, но не делаю»", icon: "◻", color: "#EF9F27", weeks: [0, 0, 0, 1, 1, 1, 1, 1], desc: "Спорт, часы, зубной — цикл намерений без действия.", insight: "Intention-action gap. Хорошая новость: зубной на 8-й неделе — паттерн уже сломан. Значит, можно снова." },
+  { name: "Забота о других > себя", icon: "●", color: "#378ADD", weeks: [1, 1, 1, 1, 1, 1, 1, 1], desc: "Каспер, папа, управа — энергия на внешние запросы. Здоровье откладывается.", insight: "Это не слабость — это сила, направленная не туда. Перенаправить часть этой энергии на себя — вот задача." },
+  { name: "Эмоциональное затухание", icon: "◆", color: "#7F77DD", weeks: [0, 0, 0, 1, 1, 1, 1, 0], desc: "Нейтрально → сонливость → раздражительность → грусть → «не помню».", insight: "Последняя неделя — радость вернулась. Затухание было, но оно не финальное." },
+  { name: "Перфекционизм-блокиратор", icon: "▲", color: "#D4537E", weeks: [0, 1, 1, 1, 1, 1, 1, 1], desc: "Планки «не уверен в цвете». Шкаф «с косяками».", insight: "Шкаф стоит — несмотря на косяки. Значит, ты умеешь преодолевать это, когда задача для кого-то. Осталось разрешить себе то же самое для себя." },
 ];
-const pl=document.getElementById("patternList");
-pats.forEach(p=>{
-  const bars=p.weeks.map((v,i)=>`<div class="pattern-bar" style="background:${v?p.color:"var(--bd)"};opacity:${v?.85:.3}"></div>`).join("");
-  pl.innerHTML+=`<div class="pattern-card"><div class="pattern-head"><div style="display:flex;gap:8px;align-items:flex-start"><span class="pattern-icon" style="color:${p.color}">${p.icon}</span><div><div class="pattern-title" style="color:${p.color}">${p.name}</div><div class="pattern-desc">${p.desc}</div></div></div><span class="pill" style="background:${p.color}15;color:${p.color}">${p.weeks.filter(v=>v).length}/8</span></div><div class="pattern-insight"><strong style="color:${p.color}">Инсайт:</strong> <span style="color:var(--t1)">${p.insight}</span></div><div class="pattern-bars">${bars}</div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-top:2px"><span>18 янв</span><span>8 мар</span></div></div>`;
+const pl = document.getElementById("patternList");
+pats.forEach(p => {
+  const bars = p.weeks.map((v, i) => `<div class="pattern-bar" style="background:${v ? p.color : "var(--bd)"};opacity:${v ? .85 : .3}"></div>`).join("");
+  const activeWeeks = p.weeks.filter(v => v).length;
+  pl.innerHTML += `<div class="pattern-card"><div class="pattern-head"><div style="display:flex;gap:8px;align-items:flex-start"><span class="pattern-icon" style="color:${p.color}">${p.icon}</span><div><div class="pattern-title" style="color:${p.color}">${p.name}</div><div class="pattern-desc">${p.desc}</div></div></div><span class="pill" style="background:${p.color}15;color:${p.color}">${activeWeeks}/8</span></div><div class="pattern-insight"><strong style="color:${p.color}">Инсайт:</strong> <span style="color:var(--t1)">${p.insight}</span></div><div class="pattern-bars">${bars}</div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-top:2px"><span>18 янв</span><span>8 мар</span></div></div>`;
 });
 
-// Dependencies
-const deps=[
-  {from:"Болезнь шеи",to:"Массажи",type:"blocks",desc:"Без диагноза непонятно, какой массаж нужен"},
-  {from:"Болезнь шеи",to:"Спорт",type:"blocks",desc:"Боль → избегание нагрузки"},
-  {from:"Сонливость",to:"Работа (все 4)",type:"drains",desc:"0 энергии на инициативные задачи"},
-  {from:"Курсы Skillbox",to:"Портфель",type:"enables",desc:"Знания → уверенность корректировать"},
-  {from:"Забота о других",to:"Личные задачи",type:"displaces",desc:"Каждый внешний запрос вытесняет личную задачу"},
-  {from:"Перфекционизм",to:"Планки / Часы",type:"blocks",desc:"«Не уверен в цвете» → недели паралича"},
-  {from:"Сертификат",to:"Совместная активность",type:"enables",desc:"Активация = конкретный план на двоих"},
-  {from:"Визы Кати",to:"Поездка (май)",type:"blocks",desc:"Без виз поездка сорвётся. Дедлайн: апрель"},
+// ── Dependencies ──
+const deps = [
+  { from: "Болезнь шеи", to: "Массажи", type: "blocks", desc: "Без диагноза непонятно, какой массаж нужен" },
+  { from: "Болезнь шеи", to: "Спорт", type: "blocks", desc: "Боль → избегание нагрузки" },
+  { from: "Сонливость", to: "Работа (все 4)", type: "drains", desc: "0 энергии на инициативные задачи" },
+  { from: "Курсы Skillbox", to: "Портфель", type: "enables", desc: "Знания → уверенность корректировать" },
+  { from: "Забота о других", to: "Личные задачи", type: "displaces", desc: "Каждый внешний запрос вытесняет личное" },
+  { from: "Перфекционизм", to: "Планки / Часы", type: "blocks", desc: "«Не уверен в цвете» → недели паралича" },
+  { from: "Сертификат", to: "Совместная активность", type: "enables", desc: "Активация = план на двоих" },
+  { from: "Визы Кати", to: "Поездка (май)", type: "blocks", desc: "Без виз поездка сорвётся. Дедлайн: апрель" },
 ];
-const depCols={blocks:"#E24B4A",drains:"#EF9F27",enables:"#1D9E75",displaces:"#7F77DD"};
-const depLbls={blocks:"блокирует",drains:"истощает",enables:"открывает",displaces:"вытесняет"};
-const dl=document.getElementById("depLegend");
-Object.entries(depLbls).forEach(([k,v])=>{dl.innerHTML+=`<div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--t2)"><div style="width:20px;height:3px;border-radius:2px;background:${depCols[k]}"></div>${v}</div>`});
-const dList=document.getElementById("depList");
-deps.forEach(d=>{dList.innerHTML+=`<div class="dep-row"><div class="dep-from">${d.from}</div><div class="dep-mid"><div class="dep-line" style="background:${depCols[d.type]}"></div><span class="dep-label" style="color:${depCols[d.type]}">${depLbls[d.type]}</span><span style="color:${depCols[d.type]};font-size:11px">→</span></div><div class="dep-to">${d.to}</div><div class="dep-desc">${d.desc}</div></div>`});
+const depCols = { blocks: "#E24B4A", drains: "#EF9F27", enables: "#1D9E75", displaces: "#7F77DD" };
+const depLbls = { blocks: "блокирует", drains: "истощает", enables: "открывает", displaces: "вытесняет" };
+const dl = document.getElementById("depLegend");
+Object.entries(depLbls).forEach(([k, v]) => { dl.innerHTML += `<div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--t2)"><div style="width:20px;height:3px;border-radius:2px;background:${depCols[k]}"></div>${v}</div>`; });
+const dList = document.getElementById("depList");
+deps.forEach(d => { dList.innerHTML += `<div class="dep-row"><div class="dep-from">${d.from}</div><div class="dep-mid"><div class="dep-line" style="background:${depCols[d.type]}"></div><span class="dep-label" style="color:${depCols[d.type]}">${depLbls[d.type]}</span><span style="color:${depCols[d.type]};font-size:11px">→</span></div><div class="dep-to">${d.to}</div><div class="dep-desc">${d.desc}</div></div>`; });
 
-// Stuck tasks
-const catCols={"Работа":"#E24B4A","Личное":"#378ADD","Семья":"#1D9E75","Любовь":"#D4537E"};
-const sevS={critical:{bg:"rgba(226,75,74,.12)",c:"#C0392B",l:"критично"},high:{bg:"rgba(239,159,39,.12)",c:"#B87A0A",l:"высокий"},medium:{bg:"rgba(136,135,128,.1)",c:"#666",l:"средний"}};
-const stuck=[
-  {t:"Наушники — план 10 шагов",w:8,cat:"Работа",sev:"critical"},
-  {t:"Курсы Skillbox → инвестирование",w:8,cat:"Работа",sev:"critical"},
-  {t:"Портфель — связь с Бехрузом",w:8,cat:"Работа",sev:"critical",dep:"Курсы Skillbox"},
-  {t:"Продажа вещей (Авито)",w:8,cat:"Работа",sev:"critical"},
-  {t:"Кабинет — планки",w:7,cat:"Личное",sev:"high",bl:"Перфекционизм"},
-  {t:"Болезнь шеи → терапевт",w:8,cat:"Личное",sev:"critical"},
-  {t:"Массажи 1–2 р/нед",w:8,cat:"Личное",sev:"high",dep:"Шея"},
-  {t:"Спорт системно",w:8,cat:"Личное",sev:"high",dep:"Шея"},
-  {t:"Часы",w:7,cat:"Личное",sev:"medium",bl:"Intention-action gap"},
-  {t:"ПК бабушке",w:8,cat:"Семья",sev:"high"},
-  {t:"Массажист папе (Лимассол)",w:8,cat:"Семья",sev:"high"},
-  {t:"Визы для Кати (май)",w:8,cat:"Семья",sev:"critical",bl:"Дедлайн: апрель"},
-  {t:"Сертификат «Рай на Двоих»",w:8,cat:"Любовь",sev:"high"},
-  {t:"Совместная активность",w:8,cat:"Любовь",sev:"high",dep:"Сертификат"},
+// ── Stuck tasks ──
+const catCols = { "Работа": "#E24B4A", "Личное": "#378ADD", "Семья": "#1D9E75", "Любовь": "#D4537E" };
+const sevS = { critical: { bg: "rgba(226,75,74,.12)", c: "#C0392B", l: "критично" }, high: { bg: "rgba(239,159,39,.12)", c: "#B87A0A", l: "высокий" }, medium: { bg: "rgba(136,135,128,.1)", c: "#666", l: "средний" } };
+const stuck = [
+  { t: "Наушники — план 10 шагов", w: 8, cat: "Работа", sev: "critical" },
+  { t: "Курсы Skillbox → инвестирование", w: 8, cat: "Работа", sev: "critical" },
+  { t: "Портфель — связь с Бехрузом", w: 8, cat: "Работа", sev: "critical", dep: "Курсы Skillbox" },
+  { t: "Продажа вещей (Авито)", w: 8, cat: "Работа", sev: "critical" },
+  { t: "Кабинет — планки", w: 7, cat: "Личное", sev: "high", bl: "Перфекционизм" },
+  { t: "Болезнь шеи → терапевт", w: 8, cat: "Личное", sev: "critical" },
+  { t: "Массажи 1–2 р/нед", w: 8, cat: "Личное", sev: "high", dep: "Шея" },
+  { t: "Спорт системно", w: 8, cat: "Личное", sev: "high", dep: "Шея" },
+  { t: "Часы", w: 7, cat: "Личное", sev: "medium", bl: "Intention-action gap" },
+  { t: "ПК бабушке", w: 8, cat: "Семья", sev: "high" },
+  { t: "Массажист папе (Лимассол)", w: 8, cat: "Семья", sev: "high" },
+  { t: "Визы для Кати (май)", w: 8, cat: "Семья", sev: "critical", bl: "Дедлайн: апрель" },
+  { t: "Сертификат «Рай на Двоих»", w: 8, cat: "Любовь", sev: "high" },
+  { t: "Совместная активность", w: 8, cat: "Любовь", sev: "high", dep: "Сертификат" },
 ];
-const sl=document.getElementById("stuckList");
-stuck.forEach(s=>{
-  const sv=sevS[s.sev];
-  let sub="";
-  if(s.dep)sub+=`← ${s.dep}`;
-  if(s.bl)sub+=`${s.dep?" · ":""}⚠ ${s.bl}`;
-  sl.innerHTML+=`<div class="stuck-row" style="border-left:3px solid ${catCols[s.cat]}"><div class="stuck-name"><div class="sn">${s.t}</div>${sub?`<div class="sd">${sub}</div>`:""}</div><span style="font-size:11px;color:var(--t3);white-space:nowrap">${s.w} нед</span><span class="pill" style="background:${sv.bg};color:${sv.c}">${sv.l}</span><span style="font-size:11px;color:${catCols[s.cat]};font-weight:600;min-width:50px">${s.cat}</span></div>`;
+const sl = document.getElementById("stuckList");
+stuck.forEach(s => {
+  const sv = sevS[s.sev];
+  let sub = "";
+  if (s.dep) sub += `← ${s.dep}`;
+  if (s.bl) sub += `${s.dep ? " · " : ""}⚠ ${s.bl}`;
+  sl.innerHTML += `<div class="stuck-row" style="border-left:3px solid ${catCols[s.cat]}"><div class="stuck-name"><div class="sn">${s.t}</div>${sub ? `<div class="sd">${sub}</div>` : ""}</div><span style="font-size:11px;color:var(--t3);white-space:nowrap">${s.w} нед</span><span class="pill" style="background:${sv.bg};color:${sv.c}">${sv.l}</span><span style="font-size:11px;color:${catCols[s.cat]};font-weight:600;min-width:50px">${s.cat}</span></div>`;
 });
 </script>
 </body>
