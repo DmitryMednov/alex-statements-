@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Алексей — Обзор и Путь вперёд</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#fafaf8;--bg2:#f2f1ed;--bg3:#eae9e4;
+--card:#ffffff;--card-h:#fffef9;
+--t1:#1a1a18;--t2:#52524e;--t3:#8a8a85;
+--bd:rgba(0,0,0,.06);--bd2:rgba(0,0,0,.1);
+--green:#1D9E75;--green-l:rgba(29,158,117,.08);--green-d:#0F6E56;
+--blue:#378ADD;--blue-l:rgba(55,138,221,.08);--blue-d:#185FA5;
+--amber:#D4860B;--amber-l:rgba(212,134,11,.08);--amber-d:#8a5700;
+--purple:#7F77DD;--purple-l:rgba(127,119,221,.08);--purple-d:#534AB7;
+--coral:#D4537E;--coral-l:rgba(212,83,126,.08);--coral-d:#993556;
+--red:#E24B4A;--red-l:rgba(226,75,74,.06);--red-d:#993D3D;
+--r:12px;--rm:8px;--rs:6px;
+}
+@media(prefers-color-scheme:dark){:root{
+--bg:#141413;--bg2:#1e1e1c;--bg3:#2a2a27;
+--card:#1c1c1a;--card-h:#22221f;
+--t1:#e8e8e4;--t2:#a1a19c;--t3:#6e6e69;
+--bd:rgba(255,255,255,.06);--bd2:rgba(255,255,255,.1);
+--green-l:rgba(29,158,117,.14);--blue-l:rgba(55,138,221,.14);
+--amber-l:rgba(212,134,11,.14);--purple-l:rgba(127,119,221,.14);
+--coral-l:rgba(212,83,126,.14);--red-l:rgba(226,75,74,.1);
+--green-d:#5dcaa5;--blue-d:#6db3f0;--amber-d:#f0c878;--purple-d:#afa9ec;--coral-d:#ed93b1;--red-d:#f09595;
+}}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--t1);line-height:1.6}
+.wrap{max-width:700px;margin:0 auto;padding:40px 20px 80px}
+.card{background:var(--card);border:.5px solid var(--bd);border-radius:var(--r);padding:24px 28px;margin-bottom:20px}
+.card-warm{background:var(--card-h);border:.5px solid var(--bd2)}
+h1{font-size:28px;font-weight:700;letter-spacing:-.03em;margin-bottom:4px}
+h2{font-size:18px;font-weight:600;letter-spacing:-.01em;margin-bottom:12px}
+h3{font-size:15px;font-weight:600;margin-bottom:8px}
+.sub{font-size:13px;color:var(--t3);margin-bottom:0}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px}
+.divider{height:1px;background:var(--bd);margin:24px 0}
+
+.hero{text-align:center;padding:48px 20px 40px;margin-bottom:24px;position:relative;overflow:hidden;border-radius:var(--r);background:linear-gradient(135deg,var(--green-l),var(--blue-l),var(--purple-l))}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:var(--green);opacity:.04}
+.hero::after{content:'';position:absolute;bottom:-40px;left:-40px;width:160px;height:160px;border-radius:50%;background:var(--purple);opacity:.04}
+.hero h1{font-size:32px;margin-bottom:8px}
+.hero .sub{font-size:14px;color:var(--t2)}
+
+.win-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:12px}
+.win-item{padding:14px 16px;border-radius:var(--rm);background:var(--green-l);border-left:3px solid var(--green)}
+.win-item .label{font-size:12px;color:var(--green-d);font-weight:600;margin-bottom:2px}
+.win-item .desc{font-size:12px;color:var(--t2);line-height:1.5}
+
+.growth-item{padding:16px 18px;border-radius:var(--rm);margin-bottom:10px;border-left:3px solid var(--blue);background:var(--bg2)}
+.growth-item.amber{border-left-color:var(--amber);background:var(--amber-l)}
+.growth-item.purple{border-left-color:var(--purple);background:var(--purple-l)}
+.growth-item.coral{border-left-color:var(--coral);background:var(--coral-l)}
+.growth-item.green{border-left-color:var(--green);background:var(--green-l)}
+.growth-item h3{margin-bottom:4px}
+.growth-item p{font-size:13px;color:var(--t2);line-height:1.7}
+.growth-item .action{display:inline-block;margin-top:8px;font-size:12px;font-weight:600;padding:4px 12px;border-radius:var(--rs)}
+.growth-item .action{color:var(--blue-d);background:var(--blue-l)}
+.growth-item.amber .action{color:var(--amber-d);background:var(--amber-l)}
+.growth-item.purple .action{color:var(--purple-d);background:var(--purple-l)}
+.growth-item.coral .action{color:var(--coral-d);background:var(--coral-l)}
+.growth-item.green .action{color:var(--green-d);background:var(--green-l)}
+
+.energy-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.energy-label{font-size:12px;color:var(--t3);width:55px;text-align:right}
+.energy-bar{flex:1;height:8px;border-radius:4px;background:var(--bg3);overflow:hidden}
+.energy-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.energy-val{font-size:12px;font-weight:600;width:24px}
+
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.metric{padding:12px 14px;border-radius:var(--rm);background:var(--bg2)}
+.metric .ml{font-size:11px;color:var(--t3);margin-bottom:2px}
+.metric .mv{font-size:22px;font-weight:700;letter-spacing:-.02em}
+.metric .ms{font-size:10px;color:var(--t3);margin-top:1px}
+
+.spark-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.spark-card{padding:14px 16px;background:var(--bg2);border-radius:var(--rm)}
+.spark-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.spark-label{font-size:13px;font-weight:600}
+.spark-minmax{font-size:10px;color:var(--t3)}
+.spark-val{font-size:20px;font-weight:700}
+
+.cal-week{padding:10px 14px;margin-bottom:6px;border-radius:var(--rm);cursor:default;border:.5px solid transparent;transition:all .2s}
+.cal-week:hover{background:var(--bg2);border-color:var(--bd2)}
+.cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.cal-events{display:flex;flex-direction:column;gap:1px}
+.cal-ev{font-size:12px;display:flex;gap:4px;align-items:center}
+.cal-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0}
+
+.dep-row{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:var(--rm);background:var(--bg2);margin-bottom:6px;flex-wrap:wrap}
+.dep-from,.dep-to{font-size:12px;font-weight:600;min-width:100px}
+.dep-from{text-align:right}
+.dep-mid{display:flex;align-items:center;gap:4px;min-width:80px}
+.dep-line{flex:1;height:2px;border-radius:1px}
+.dep-label{font-size:10px;font-weight:600;white-space:nowrap}
+.dep-desc{flex:1;font-size:11px;color:var(--t2);min-width:140px}
+
+.stuck-row{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg2);border-radius:var(--rm);margin-bottom:6px;flex-wrap:wrap}
+.stuck-name{flex:1;min-width:180px}
+.stuck-name .sn{font-size:13px;font-weight:500}
+.stuck-name .sd{font-size:11px;color:var(--t3);margin-top:1px}
+
+.emo-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--rm);margin:0 4px 4px 0}
+.emo-name{font-size:13px;font-weight:600}
+.emo-count{font-size:18px;font-weight:700;opacity:.6}
+.emo-unit{font-size:10px;opacity:.5}
+
+.evo-chain{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin-bottom:10px}
+.evo-node{padding:5px 10px;border-radius:16px;font-size:11px;font-weight:600}
+.evo-link{width:12px;height:1.5px;flex-shrink:0}
+
+.pattern-card{padding:14px 16px;border-radius:var(--rm);background:var(--bg2);margin-bottom:8px;border:.5px solid var(--bd)}
+.pattern-head{display:flex;justify-content:space-between;align-items:flex-start}
+.pattern-icon{font-size:16px;line-height:1.2;margin-top:1px;margin-right:8px}
+.pattern-title{font-size:14px;font-weight:600}
+.pattern-desc{font-size:12px;color:var(--t2);margin-top:2px;line-height:1.5}
+.pattern-insight{margin-top:10px;padding-top:10px;border-top:.5px solid var(--bd);font-size:12px;line-height:1.7}
+.pattern-bars{display:flex;gap:3px;margin-top:10px}
+.pattern-bar{flex:1;height:6px;border-radius:3px;transition:all .3s}
+
+.quote{position:relative;padding:20px 24px 20px 28px;border-radius:var(--rm);background:var(--green-l);border-left:4px solid var(--green);margin-top:16px}
+.quote p{font-size:15px;font-weight:500;color:var(--green-d);line-height:1.6;font-style:italic}
+
+.cta{text-align:center;padding:32px 20px;border-radius:var(--r);background:linear-gradient(135deg,var(--green-l),var(--blue-l));margin-top:8px}
+.cta h2{font-size:20px;margin-bottom:8px}
+.cta p{font-size:14px;color:var(--t2);max-width:480px;margin:0 auto;line-height:1.7}
+
+.fade{opacity:0;transform:translateY(12px);animation:fadeUp .5s ease forwards}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+.d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}.d4{animation-delay:.2s}.d5{animation-delay:.25s}.d6{animation-delay:.3s}.d7{animation-delay:.35s}.d8{animation-delay:.4s}.d9{animation-delay:.45s}.d10{animation-delay:.5s}.d11{animation-delay:.55s}.d12{animation-delay:.6s}.d13{animation-delay:.65s}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HERO -->
+<div class="hero fade">
+  <h1>Лёш, ты молодец.</h1>
+  <p class="sub">Это карта — где ты сейчас, и куда можно пойти дальше.</p>
+</div>
+
+<!-- METRICS -->
+<div class="metric-grid fade d1">
+  <div class="metric"><div class="ml">Энергия (ср)</div><div class="mv" style="color:var(--amber)">2.7</div><div class="ms">/5 · range 2.0–3.0</div></div>
+  <div class="metric"><div class="ml">Работа</div><div class="mv" style="color:var(--red)">1.3</div><div class="ms">/5 · 5 нед на min</div></div>
+  <div class="metric"><div class="ml">Выполнено</div><div class="mv" style="color:var(--green)">13</div><div class="ms">задач за 8 нед</div></div>
+  <div class="metric"><div class="ml">Застряло (крит)</div><div class="mv" style="color:var(--red)">5</div><div class="ms">из 14 всего</div></div>
+</div>
+
+<!-- WHAT YOU DID RIGHT -->
+<div class="card card-warm fade d2">
+  <h2>Что ты сделал за эти 8 недель</h2>
+  <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Прежде чем смотреть вперёд — давай зафиксируем. Сделано немало.</p>
+  <div class="win-grid">
+    <div class="win-item"><div class="label">Каспер</div><div class="desc">Операция → лечение → швы → химия. Полный цикл заботы. Ежедневные таблетки, мази, кормление. Кот выздоравливает.</div></div>
+    <div class="win-item"><div class="label">Помощь папе</div><div class="desc">6 часов на Жуково, поиск вещей, фотографии, встречи с покупателями, гитары. Ни одной пропущенной просьбы.</div></div>
+    <div class="win-item"><div class="label">Шкаф для Кати</div><div class="desc">Купил, собрал, сделал заднюю стенку. Да, с косяками — но он стоит. Done > perfect.</div></div>
+    <div class="win-item"><div class="label">Зубной</div><div class="desc">7 недель думал — на 8-й пошёл. Это победа. Следующий визит назначен.</div></div>
+    <div class="win-item"><div class="label">Дом</div><div class="desc">Собрания жильцов, управа, камеры. Ответственный за дом — и справляешься, и помогаешь людям.</div></div>
+    <div class="win-item"><div class="label">Семья</div><div class="desc">ДР дедушки Лёши. Букет на 8 марта (заранее!). Катю и Милу возил. Рядом, когда нужен.</div></div>
+  </div>
+</div>
+
+<!-- KEY INSIGHT -->
+<div class="card fade d3">
+  <h2>Главный инсайт</h2>
+  <p style="font-size:14px;color:var(--t2);line-height:1.7;margin-bottom:12px">
+    Лёш, ты <strong style="color:var(--t1)">не ленивый</strong>. Данные это доказывают. Когда задача конкретная, срочная и для кого-то — ты работаешь на 4 из 5. Часами. Без жалоб.
+  </p>
+  <p style="font-size:14px;color:var(--t2);line-height:1.7;margin-bottom:12px">
+    Штука в другом: <strong style="color:var(--t1)">ты пока не научился давать себе такой же приоритет, как другим</strong>. Когда задача абстрактная и для себя — она висит. Не потому что ты плохой — потому что нет привычки.
+  </p>
+  <p style="font-size:14px;color:var(--t2);line-height:1.7">
+    А это <strong style="color:var(--green)">навык, который можно развить</strong>. Не характер, не диагноз — навык.
+  </p>
+</div>
+
+<!-- ENERGY CHARTS -->
+<div class="card fade d4">
+  <h2>Динамика энергии</h2>
+  <p class="sub" style="margin-bottom:16px">Спарклайны по 4 сферам за 8 недель · min/max отмечены</p>
+  <div class="spark-grid" id="sparkGrid"></div>
+  <div style="margin-top:16px;padding:14px 16px;background:var(--bg2);border-radius:var(--rm)">
+    <div class="spark-header" style="margin-bottom:8px">
+      <span class="spark-label" style="color:var(--purple)">Средняя энергия (общая)</span>
+      <span class="spark-minmax">min 2.0 · max 3.0</span>
+    </div>
+    <canvas id="avgChart" height="70"></canvas>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-top:4px;padding:0 4px" id="avgLabels"></div>
+  </div>
+</div>
+
+<!-- ENERGY BARS -->
+<div class="card fade d5">
+  <h2>Где ты сейчас</h2>
+  <p class="sub" style="margin-bottom:14px">Средняя энергия за 8 недель по сферам</p>
+  <div class="energy-row"><span class="energy-label">Семья</span><div class="energy-bar"><div class="energy-fill" style="width:64%;background:var(--green)"></div></div><span class="energy-val" style="color:var(--green)">3.2</span></div>
+  <div class="energy-row"><span class="energy-label">Личное</span><div class="energy-bar"><div class="energy-fill" style="width:60%;background:var(--blue)"></div></div><span class="energy-val" style="color:var(--blue)">3.0</span></div>
+  <div class="energy-row"><span class="energy-label">Любовь</span><div class="energy-bar"><div class="energy-fill" style="width:60%;background:var(--coral)"></div></div><span class="energy-val" style="color:var(--coral)">3.0</span></div>
+  <div class="energy-row"><span class="energy-label">Работа</span><div class="energy-bar"><div class="energy-fill" style="width:26%;background:var(--red)"></div></div><span class="energy-val" style="color:var(--red)">1.3</span></div>
+  <p style="font-size:12px;color:var(--t3);margin-top:10px;text-align:center">Работа — зона роста #1. Три другие сферы стабильны — это фундамент.</p>
+</div>
+
+<!-- CALENDAR TIMELINE -->
+<div class="card fade d6">
+  <h2>Календарь — неделя за неделей</h2>
+  <p class="sub" style="margin-bottom:14px">События, эмоции, завершённые задачи</p>
+  <div id="calTimeline"></div>
+</div>
+
+<!-- EMOTION MAP -->
+<div class="card fade d7">
+  <h2>Эмоциональная карта</h2>
+  <p class="sub" style="margin-bottom:14px">Частота эмоций за 8 недель + эволюция</p>
+  <div id="emoChips" style="display:flex;flex-wrap:wrap;margin-bottom:16px"></div>
+  <div style="font-size:13px;font-weight:600;margin-bottom:8px">Эволюция</div>
+  <div class="evo-chain" id="evoChain"></div>
+  <div style="font-size:12px;color:var(--t2);line-height:1.7;padding:12px 14px;background:var(--bg2);border-radius:var(--rm)">
+    <strong style="color:var(--purple-d)">Важно:</strong> переход к «не помню» (1 марта) — сигнал усталости и потери контакта с собой. Но последняя неделя — проблеск радости. Ты начинаешь возвращаться.
+  </div>
+</div>
+
+<!-- PATTERNS -->
+<div class="card fade d8">
+  <h2>Паттерны поведения</h2>
+  <p class="sub" style="margin-bottom:14px">Повторяющиеся модели — не ярлыки, а точки для роста</p>
+  <div id="patternList"></div>
+</div>
+
+<!-- DEPENDENCY MAP -->
+<div class="card fade d9">
+  <h2>Карта зависимостей</h2>
+  <p class="sub" style="margin-bottom:14px">Как задачи и состояния связаны друг с другом</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px" id="depLegend"></div>
+  <div id="depList"></div>
+</div>
+
+<!-- STUCK TASKS -->
+<div class="card fade d10">
+  <h2>Задачи, которые ждут тебя</h2>
+  <p class="sub" style="margin-bottom:14px">14 задач · не «что ты не сделал», а «что осталось сделать»</p>
+  <div id="stuckList"></div>
+</div>
+
+<!-- GROWTH MAP -->
+<div class="card fade d11">
+  <h2>Куда можно расти</h2>
+  <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Не «что ты делаешь не так», а «что поможет чувствовать себя лучше».</p>
+  <div class="growth-item green"><h3 style="color:var(--green-d)">Здоровье — первый ключ</h3><p>Постоянная сонливость может быть не про лень, а про тело. Щитовидка, витамин D, железо — банальные вещи, которые сильно влияют на энергию. Ты уже пошёл к зубному. Терапевт по шее — следующий прорыв.</p><span class="action">Один звонок → запись к терапевту</span></div>
+  <div class="growth-item"><h3 style="color:var(--blue-d)">Правило «для кого-то» → на себя</h3><p>Ты отлично работаешь, когда кто-то ждёт результат. Лайфхак: сделай из личных задач «внешние». Скажи Кате: «в субботу едем за планками, поможешь с цветом?». Скажи брату: «я до пятницы выложу 5 вещей на Авито, проверишь?».</p><span class="action">Привязать 1 задачу к человеку</span></div>
+  <div class="growth-item amber"><h3 style="color:var(--amber-d)">Работа — честный разговор с собой</h3><p>4 задачи висят 8 недель. Это не провал — это сигнал. Может, некоторые уже не актуальны? Разрешить себе вычеркнуть — тоже прогресс. Лучше 1 живая задача, чем 4 мёртвых.</p><span class="action">Оставить 1–2, остальные — в архив</span></div>
+  <div class="growth-item purple"><h3 style="color:var(--purple-d)">Эмоции — не игнорировать</h3><p>«Не помню» — это не пустяк, а сигнал усталости. Даже 1 слово в день — «устал», «нормально», «злюсь» — возвращает контакт с собой. Необязательно полный отчёт — можно голосовое на 30 секунд.</p><span class="action">1 слово-эмоция в день</span></div>
+  <div class="growth-item coral"><h3 style="color:var(--coral-d)">Катя — время, не вещи</h3><p>Шкаф собран, букет куплен. Но сертификат «Рай на Двоих» висит все 8 недель. Один конкретный вечер с датой в календаре — больше, чем идеальный кабинет.</p><span class="action">Назначить дату на этой неделе</span></div>
+</div>
+
+<!-- WHAT'S CHANGING -->
+<div class="card fade d12">
+  <h2>Что уже меняется</h2>
+  <p style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:12px">Последние недели — не только сложности. Есть конкретные сдвиги:</p>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="display:flex;gap:8px;align-items:flex-start"><span class="pill" style="background:var(--green-l);color:var(--green-d);flex-shrink:0">неделя 8</span><span style="font-size:13px;color:var(--t2)">Зубной — прорвался после 7 недель. Паттерн «думаю, но не делаю» — впервые сломан.</span></div>
+    <div style="display:flex;gap:8px;align-items:flex-start"><span class="pill" style="background:var(--green-l);color:var(--green-d);flex-shrink:0">неделя 8</span><span style="font-size:13px;color:var(--t2)">Каспер на химии — полный цикл заботы завершён. Уши больше не беспокоят.</span></div>
+    <div style="display:flex;gap:8px;align-items:flex-start"><span class="pill" style="background:var(--green-l);color:var(--green-d);flex-shrink:0">неделя 8</span><span style="font-size:13px;color:var(--t2)">Эмоция «радость» — впервые за 4 недели. В паре с грустью — но она появилась.</span></div>
+    <div style="display:flex;gap:8px;align-items:flex-start"><span class="pill" style="background:var(--blue-l);color:var(--blue-d);flex-shrink:0">тренд</span><span style="font-size:13px;color:var(--t2)">Конкретная задача = действие. Дело не в тебе, а в формулировке. Это решаемо.</span></div>
+  </div>
+</div>
+
+<!-- 5 MICRO STEPS -->
+<div class="card fade d12">
+  <h2>5 микрошагов на ближайшую неделю</h2>
+  <p style="font-size:13px;color:var(--t2);margin-bottom:14px">Каждый — максимум 10 минут. Не нужно менять жизнь за день.</p>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;gap:12px;align-items:center;padding:12px 16px;border-radius:var(--rm);background:var(--bg2)"><span style="font-size:22px;font-weight:700;color:var(--green);width:28px;text-align:center">1</span><div><div style="font-size:14px;font-weight:600">Записаться к терапевту по шее</div><div style="font-size:12px;color:var(--t3)">5 минут · 1 звонок</div></div></div>
+    <div style="display:flex;gap:12px;align-items:center;padding:12px 16px;border-radius:var(--rm);background:var(--bg2)"><span style="font-size:22px;font-weight:700;color:var(--green);width:28px;text-align:center">2</span><div><div style="font-size:14px;font-weight:600">Написать Бехрузу по портфелю</div><div style="font-size:12px;color:var(--t3)">5 минут · 1 сообщение</div></div></div>
+    <div style="display:flex;gap:12px;align-items:center;padding:12px 16px;border-radius:var(--rm);background:var(--bg2)"><span style="font-size:22px;font-weight:700;color:var(--green);width:28px;text-align:center">3</span><div><div style="font-size:14px;font-weight:600">Активировать «Рай на Двоих» + дату в календарь</div><div style="font-size:12px;color:var(--t3)">10 минут</div></div></div>
+    <div style="display:flex;gap:12px;align-items:center;padding:12px 16px;border-radius:var(--rm);background:var(--bg2)"><span style="font-size:22px;font-weight:700;color:var(--green);width:28px;text-align:center">4</span><div><div style="font-size:14px;font-weight:600">Сфоткать 3 вещи с балкона → Авито</div><div style="font-size:12px;color:var(--t3)">10 минут · старт важнее объёма</div></div></div>
+    <div style="display:flex;gap:12px;align-items:center;padding:12px 16px;border-radius:var(--rm);background:var(--bg2)"><span style="font-size:22px;font-weight:700;color:var(--green);width:28px;text-align:center">5</span><div><div style="font-size:14px;font-weight:600">Прислать отчёт за последние 2 недели</div><div style="font-size:12px;color:var(--t3)">10 минут · можно голосовым · 3 строчки</div></div></div>
+  </div>
+</div>
+
+<!-- QUOTE -->
+<div class="card card-warm fade d13">
+  <div class="quote">
+    <p>Ты за 8 недель довёл кота от операции до выздоровления, собрал шкаф, помогал папе часами, ходил в управу за соседей, и наконец пошёл к зубному. Человек, который на это способен — способен на всё остальное. Просто пока не направил эту силу на себя.</p>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta fade d13">
+  <h2>Лёш, пришли отчёт</h2>
+  <p>Неважно в каком формате. Три строчки, голосовое, заметка. Мне важно знать, как у тебя дела. Не чтобы проверить — чтобы помочь двигаться дальше. Ты не один в этом.</p>
+</div>
+
+<div style="text-align:center;padding:24px 0 0;font-size:11px;color:var(--t3)">С заботой · март 2026</div>
+</div>
+
+<script>
+const W = [
+  { label:"18 янв", work:2, personal:3, family:4, love:3, avg:2.5, state:"Выздоровление", emotions:["Забота","Тепло","Сонливость"], events:["Начало отслеживания","Выздоровление после болезни"], done:[] },
+  { label:"26 янв", work:2, personal:3, family:3, love:3, avg:2.5, state:"Неопределённость", emotions:["Забота","Тепло","Сонливость"], events:["ДР дедушки Лёши ✓","Помощь папе Жуково ✓","Каспер → консультация"], done:["ДР дедушки","Помощь папе"] },
+  { label:"2 фев", work:2, personal:3, family:3, love:3, avg:3, state:"Неопределённость", emotions:["Забота","Тепло","Сонливость"], events:["Каспер → операция ✓","Собрание жильцов ✓","Отмена Беларуси","Новое: ремонт ванной"], done:["Операция Каспера","Собрание жильцов"] },
+  { label:"8 фев", work:1, personal:3, family:4, love:3, avg:3, state:"Забота", emotions:["Забота","Сонливость","Раздражительность"], events:["Жуково 6 часов ✓","Уход за Каспером","Визит в управу ✓"], done:["Жуково (6ч)","Управа"] },
+  { label:"16 фев", work:1, personal:3, family:3, love:3, avg:3, state:"Грусть", emotions:["Забота","Сонливость","Раздражительность","Грусть"], events:["Папа: «ты всё профукал»","Обида","Шкаф Кате — начал"], done:["Куплен шкаф"] },
+  { label:"23 фев", work:1, personal:3, family:3, love:4, avg:3, state:"Грусть", emotions:["Забота","Сонливость","Раздражительность","Грусть"], events:["Шкаф собран ✓","Гитара отдана ✓"], done:["Шкаф собран","Гитара"] },
+  { label:"1 мар", work:1, personal:3, family:3, love:2, avg:2, state:"Не помню", emotions:["—"], events:["Отчёт +2 нед","Потеря саморефлексии"], done:[] },
+  { label:"8 мар", work:1, personal:3, family:3, love:4, avg:3, state:"Сонное", emotions:["Нейтральная","Радость"], events:["Зубной ✓","Каспер → химия ✓","Букет 8 марта ✓","Стенка шкафа ✓"], done:["Зубной","Каспер","Букет","Стенка"] },
+];
+
+const spheres = [
+  { key:"work", label:"Работа", color:"#E24B4A", vals:W.map(w=>w.work) },
+  { key:"personal", label:"Личное", color:"#378ADD", vals:W.map(w=>w.personal) },
+  { key:"family", label:"Семья", color:"#1D9E75", vals:W.map(w=>w.family) },
+  { key:"love", label:"Любовь", color:"#D4537E", vals:W.map(w=>w.love) },
+];
+
+// Sparklines
+const sg = document.getElementById("sparkGrid");
+spheres.forEach(s => {
+  const min = Math.min(...s.vals), max = Math.max(...s.vals), last = s.vals[s.vals.length-1];
+  const card = document.createElement("div");
+  card.className = "spark-card";
+  card.innerHTML = `<div class="spark-header"><span class="spark-label" style="color:${s.color}">${s.label}</span><div><span class="spark-minmax">min ${min} · max ${max}&nbsp;&nbsp;</span><span class="spark-val" style="color:${s.color}">${last}/5</span></div></div>`;
+  const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+  svg.setAttribute("viewBox","0 0 150 48");svg.setAttribute("width","100%");svg.style.display="block";svg.style.overflow="visible";
+  const range = max-min||1, pad=6, ph=36;
+  const pts=s.vals.map((v,i)=>({x:(i/(s.vals.length-1))*150, y:pad+ph-((v-min)/range)*ph, v}));
+  const poly=document.createElementNS("http://www.w3.org/2000/svg","polyline");
+  poly.setAttribute("points",pts.map(p=>`${p.x},${p.y}`).join(" "));
+  poly.setAttribute("fill","none");poly.setAttribute("stroke",s.color);poly.setAttribute("stroke-width","2");poly.setAttribute("stroke-linecap","round");poly.setAttribute("stroke-linejoin","round");
+  svg.appendChild(poly);
+  pts.forEach(p=>{const c=document.createElementNS("http://www.w3.org/2000/svg","circle");c.setAttribute("cx",p.x);c.setAttribute("cy",p.y);c.setAttribute("r","3");c.setAttribute("fill",s.color);svg.appendChild(c)});
+  if(min!==max){
+    const mx=pts.reduce((a,b)=>a.v>=b.v?a:b), mn=pts.reduce((a,b)=>a.v<=b.v?a:b);
+    [mx,mn].forEach((p,idx)=>{
+      const ring=document.createElementNS("http://www.w3.org/2000/svg","circle");ring.setAttribute("cx",p.x);ring.setAttribute("cy",p.y);ring.setAttribute("r","6");ring.setAttribute("fill",s.color);ring.setAttribute("opacity","0.15");svg.appendChild(ring);
+      const t=document.createElementNS("http://www.w3.org/2000/svg","text");t.setAttribute("x",p.x);t.setAttribute("y",idx===0?p.y-10:p.y+16);t.setAttribute("text-anchor","middle");t.style.cssText=`font-size:9px;font-weight:600;fill:${s.color};font-family:var(--font-sans,'DM Sans',system-ui)`;t.textContent=(idx===0?"MAX ":"MIN ")+p.v;svg.appendChild(t);
+    });
+  }
+  card.appendChild(svg);
+  const lb=document.createElement("div");lb.style.cssText="display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-top:4px";lb.innerHTML="<span>янв</span><span>мар</span>";card.appendChild(lb);
+  sg.appendChild(card);
+});
+
+// Avg bar chart
+const ac=document.getElementById("avgChart"), ctx=ac.getContext("2d");
+const avgs=W.map(w=>w.avg), aMin=Math.min(...avgs), aMax=Math.max(...avgs);
+function drawAvg(){
+  const dpr=window.devicePixelRatio||1, rect=ac.getBoundingClientRect();
+  ac.width=rect.width*dpr;ac.height=70*dpr;ctx.scale(dpr,dpr);
+  const cw=rect.width, ch=70, bw=cw/avgs.length, pad=6;
+  const maxI=avgs.indexOf(aMax), minI=avgs.lastIndexOf(aMin);
+  avgs.forEach((v,i)=>{
+    const bh=(v/5)*(ch-20);
+    ctx.fillStyle=i===maxI?"#534AB7":i===minI?"rgba(83,74,183,0.45)":"rgba(83,74,183,0.65)";
+    ctx.beginPath();
+    const x=i*bw+pad, y=ch-bh, w=bw-pad*2, r=4;
+    ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,ch);ctx.lineTo(x,ch);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.fill();
+    ctx.fillStyle="var(--t1)";ctx.font=`${i===maxI||i===minI?"600":"400"} 11px 'DM Sans',system-ui`;ctx.textAlign="center";
+    ctx.fillStyle=i===maxI?"#534AB7":i===minI?"rgba(83,74,183,0.7)":"rgba(100,100,100,0.6)";
+    ctx.fillText(v, i*bw+bw/2, y-4);
+    if(i===maxI){ctx.font="600 9px 'DM Sans',system-ui";ctx.fillStyle="#534AB7";ctx.fillText("MAX",i*bw+bw/2,y-16)}
+    if(i===minI&&aMin!==aMax){ctx.font="600 9px 'DM Sans',system-ui";ctx.fillStyle="rgba(83,74,183,0.6)";ctx.fillText("MIN",i*bw+bw/2,ch+12)}
+  });
+}
+drawAvg();
+const al=document.getElementById("avgLabels");W.forEach(w=>{const s=document.createElement("span");s.textContent=w.label;al.appendChild(s)});
+
+// Calendar
+const ct=document.getElementById("calTimeline");
+const emoStyle=e=>{const l=e.toLowerCase();if(l.includes("грусть"))return{bg:"rgba(226,75,74,.12)",c:"#C0392B"};if(l.includes("раздражительность"))return{bg:"rgba(239,159,39,.12)",c:"#B87A0A"};if(l.includes("радость"))return{bg:"rgba(29,158,117,.12)",c:"#0F6E56"};if(l.includes("забота")||l.includes("тепло"))return{bg:"rgba(55,138,221,.12)",c:"#185FA5"};if(l.includes("сонливость"))return{bg:"rgba(127,119,221,.12)",c:"#534AB7"};return{bg:"var(--bg2)",c:"var(--t2)"}};
+W.forEach(w=>{
+  const d=document.createElement("div");d.className="cal-week";
+  const dotColor=w.avg<=2?"#E24B4A":w.avg<=3?"#EF9F27":"#1D9E75";
+  let pills=w.emotions.map(e=>{const s=emoStyle(e);return`<span class="pill" style="background:${s.bg};color:${s.c}">${e}</span>`}).join("");
+  let evs=w.events.map(e=>{const ok=e.includes("✓"),bad=e.includes("Обида")||e.includes("Потеря")||e.includes("профукал");return`<div class="cal-ev" style="color:${ok?"var(--green)":bad?"var(--red)":"var(--t2)"}"><span class="cal-dot" style="background:${ok?"var(--green)":bad?"var(--red)":"var(--t3)"}"></span>${e}</div>`}).join("");
+  let doneHtml=w.done.length?`<span class="pill" style="background:var(--green-l);color:var(--green-d)">✓ ${w.done.length}</span>`:"";
+  d.innerHTML=`<div class="cal-head"><div style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:${dotColor};display:inline-block"></span><span style="font-size:13px;font-weight:600">${w.label}</span><span style="font-size:12px;color:var(--t2)">${w.state}</span>${doneHtml}</div><span style="font-size:12px;font-weight:600;color:${dotColor}">${w.avg}/5</span></div><div style="display:flex;gap:4px;flex-wrap:wrap;margin:4px 0">${pills}</div><div class="cal-events">${evs}</div>`;
+  ct.appendChild(d);
+});
+
+// Emotion chips
+const emoFreq={};W.forEach(w=>w.emotions.forEach(e=>{if(e!=="—")emoFreq[e]=(emoFreq[e]||0)+1}));
+const ec=document.getElementById("emoChips");
+Object.entries(emoFreq).sort((a,b)=>b[1]-a[1]).forEach(([em,cnt])=>{
+  const s=emoStyle(em);
+  ec.innerHTML+=`<div class="emo-chip" style="background:${s.bg}"><span class="emo-name" style="color:${s.c}">${em}</span><span class="emo-count" style="color:${s.c}">${cnt}</span><span class="emo-unit" style="color:${s.c}">нед</span></div>`;
+});
+
+// Evolution chain
+const evoData=[{s:"Нейтрально",c:"#888"},{s:"Сонливость",c:"#534AB7"},{s:"Раздражит.",c:"#EF9F27"},{s:"Грусть",c:"#E24B4A"},{s:"«Не помню»",c:"#2C3E50"},{s:"Радость?",c:"#1D9E75"}];
+const ev=document.getElementById("evoChain");
+evoData.forEach((e,i)=>{
+  ev.innerHTML+=`<div class="evo-node" style="background:${e.c}12;border:1px solid ${e.c}25;color:${e.c}">${e.s}</div>`;
+  if(i<evoData.length-1)ev.innerHTML+=`<div class="evo-link" style="background:${evoData[i+1].c};opacity:.3"></div>`;
+});
+
+// Patterns
+const pats=[
+  {name:"Стагнация работы",icon:"◼",color:"#E24B4A",weeks:[1,1,1,1,1,1,1,1],desc:"Все 4 рабочие задачи без движения 8 недель. Тексты идентичны — механическое копирование.",insight:"Задачи как «надо бы», а не «хочу». Нет дедлайнов, нет декомпозиции. Но это значит, что достаточно поменять формат — и дело сдвинется."},
+  {name:"«Думаю, но не делаю»",icon:"◻",color:"#EF9F27",weeks:[0,0,0,1,1,1,1,1],desc:"Спорт, часы, зубной — цикл намерений без действия.",insight:"Intention-action gap. Хорошая новость: зубной на 8-й неделе — паттерн уже однажды сломан. Значит, можно снова."},
+  {name:"Забота о других > себя",icon:"●",color:"#378ADD",weeks:[1,1,1,1,1,1,1,1],desc:"Каспер, папа, управа — энергия на внешние запросы. Здоровье откладывается.",insight:"Это не слабость — это сила, направленная не туда. Перенаправить часть этой энергии на себя — вот задача."},
+  {name:"Эмоциональное затухание",icon:"◆",color:"#7F77DD",weeks:[0,0,0,1,1,1,1,0],desc:"Нейтрально → сонливость → раздражительность → грусть → «не помню».",insight:"Последняя неделя — радость вернулась. Затухание было, но оно не финальное. 1 слово-эмоция в день = путь назад к себе."},
+  {name:"Перфекционизм-блокиратор",icon:"▲",color:"#D4537E",weeks:[0,1,1,1,1,1,1,1],desc:"Планки «не уверен в цвете». Шкаф «с косяками».",insight:"Шкаф стоит — несмотря на косяки. Значит, ты умеешь преодолевать перфекционизм, когда задача для Кати. Осталось разрешить себе то же самое для себя."},
+];
+const pl=document.getElementById("patternList");
+pats.forEach(p=>{
+  const bars=p.weeks.map((v,i)=>`<div class="pattern-bar" style="background:${v?p.color:"var(--bd)"};opacity:${v?.85:.3}"></div>`).join("");
+  pl.innerHTML+=`<div class="pattern-card"><div class="pattern-head"><div style="display:flex;gap:8px;align-items:flex-start"><span class="pattern-icon" style="color:${p.color}">${p.icon}</span><div><div class="pattern-title" style="color:${p.color}">${p.name}</div><div class="pattern-desc">${p.desc}</div></div></div><span class="pill" style="background:${p.color}15;color:${p.color}">${p.weeks.filter(v=>v).length}/8</span></div><div class="pattern-insight"><strong style="color:${p.color}">Инсайт:</strong> <span style="color:var(--t1)">${p.insight}</span></div><div class="pattern-bars">${bars}</div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-top:2px"><span>18 янв</span><span>8 мар</span></div></div>`;
+});
+
+// Dependencies
+const deps=[
+  {from:"Болезнь шеи",to:"Массажи",type:"blocks",desc:"Без диагноза непонятно, какой массаж нужен"},
+  {from:"Болезнь шеи",to:"Спорт",type:"blocks",desc:"Боль → избегание нагрузки"},
+  {from:"Сонливость",to:"Работа (все 4)",type:"drains",desc:"0 энергии на инициативные задачи"},
+  {from:"Курсы Skillbox",to:"Портфель",type:"enables",desc:"Знания → уверенность корректировать"},
+  {from:"Забота о других",to:"Личные задачи",type:"displaces",desc:"Каждый внешний запрос вытесняет личную задачу"},
+  {from:"Перфекционизм",to:"Планки / Часы",type:"blocks",desc:"«Не уверен в цвете» → недели паралича"},
+  {from:"Сертификат",to:"Совместная активность",type:"enables",desc:"Активация = конкретный план на двоих"},
+  {from:"Визы Кати",to:"Поездка (май)",type:"blocks",desc:"Без виз поездка сорвётся. Дедлайн: апрель"},
+];
+const depCols={blocks:"#E24B4A",drains:"#EF9F27",enables:"#1D9E75",displaces:"#7F77DD"};
+const depLbls={blocks:"блокирует",drains:"истощает",enables:"открывает",displaces:"вытесняет"};
+const dl=document.getElementById("depLegend");
+Object.entries(depLbls).forEach(([k,v])=>{dl.innerHTML+=`<div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--t2)"><div style="width:20px;height:3px;border-radius:2px;background:${depCols[k]}"></div>${v}</div>`});
+const dList=document.getElementById("depList");
+deps.forEach(d=>{dList.innerHTML+=`<div class="dep-row"><div class="dep-from">${d.from}</div><div class="dep-mid"><div class="dep-line" style="background:${depCols[d.type]}"></div><span class="dep-label" style="color:${depCols[d.type]}">${depLbls[d.type]}</span><span style="color:${depCols[d.type]};font-size:11px">→</span></div><div class="dep-to">${d.to}</div><div class="dep-desc">${d.desc}</div></div>`});
+
+// Stuck tasks
+const catCols={"Работа":"#E24B4A","Личное":"#378ADD","Семья":"#1D9E75","Любовь":"#D4537E"};
+const sevS={critical:{bg:"rgba(226,75,74,.12)",c:"#C0392B",l:"критично"},high:{bg:"rgba(239,159,39,.12)",c:"#B87A0A",l:"высокий"},medium:{bg:"rgba(136,135,128,.1)",c:"#666",l:"средний"}};
+const stuck=[
+  {t:"Наушники — план 10 шагов",w:8,cat:"Работа",sev:"critical"},
+  {t:"Курсы Skillbox → инвестирование",w:8,cat:"Работа",sev:"critical"},
+  {t:"Портфель — связь с Бехрузом",w:8,cat:"Работа",sev:"critical",dep:"Курсы Skillbox"},
+  {t:"Продажа вещей (Авито)",w:8,cat:"Работа",sev:"critical"},
+  {t:"Кабинет — планки",w:7,cat:"Личное",sev:"high",bl:"Перфекционизм"},
+  {t:"Болезнь шеи → терапевт",w:8,cat:"Личное",sev:"critical"},
+  {t:"Массажи 1–2 р/нед",w:8,cat:"Личное",sev:"high",dep:"Шея"},
+  {t:"Спорт системно",w:8,cat:"Личное",sev:"high",dep:"Шея"},
+  {t:"Часы",w:7,cat:"Личное",sev:"medium",bl:"Intention-action gap"},
+  {t:"ПК бабушке",w:8,cat:"Семья",sev:"high"},
+  {t:"Массажист папе (Лимассол)",w:8,cat:"Семья",sev:"high"},
+  {t:"Визы для Кати (май)",w:8,cat:"Семья",sev:"critical",bl:"Дедлайн: апрель"},
+  {t:"Сертификат «Рай на Двоих»",w:8,cat:"Любовь",sev:"high"},
+  {t:"Совместная активность",w:8,cat:"Любовь",sev:"high",dep:"Сертификат"},
+];
+const sl=document.getElementById("stuckList");
+stuck.forEach(s=>{
+  const sv=sevS[s.sev];
+  let sub="";
+  if(s.dep)sub+=`← ${s.dep}`;
+  if(s.bl)sub+=`${s.dep?" · ":""}⚠ ${s.bl}`;
+  sl.innerHTML+=`<div class="stuck-row" style="border-left:3px solid ${catCols[s.cat]}"><div class="stuck-name"><div class="sn">${s.t}</div>${sub?`<div class="sd">${sub}</div>`:""}</div><span style="font-size:11px;color:var(--t3);white-space:nowrap">${s.w} нед</span><span class="pill" style="background:${sv.bg};color:${sv.c}">${sv.l}</span><span style="font-size:11px;color:${catCols[s.cat]};font-weight:600;min-width:50px">${s.cat}</span></div>`;
+});
+</script>
+</body>
+</html>
